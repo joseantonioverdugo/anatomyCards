@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\UserController;
@@ -26,6 +27,7 @@ Route::get('subcategories', function () {
 
 Route::middleware(['auth', 'verified'])->group(function(){
     Route::resource('users', UserController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+    Route::resource('categories', CategoryController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 });
 
 require __DIR__.'/settings.php';

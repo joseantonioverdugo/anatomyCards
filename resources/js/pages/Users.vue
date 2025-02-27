@@ -1,43 +1,17 @@
-<script setup lang="ts">
+<script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { onMounted } from 'vue';
 
-interface User {
-    id: number;
-    name: string;
-    email: string;
-    is_admin: boolean;
-    created_at: string;
-    updated_at: string;
-}
-
-interface Pagination {
-    data: User[];
-    current_page: number;
-    from: number;
-    last_page: number;
-    per_page: number;
-    to: number;
-    total: number;
-    links: any[];
-}
-
-const breadcrumbs: BreadcrumbItem[] = [
+const breadcrumbs = [
     {
         title: 'Users',
         href: '/users',
     },
 ];
 
-const props = defineProps<{
-    name?: string;
-    users: Pagination;
-}>();
-
-onMounted(() => {
-    console.log('Users', props.users);
+defineProps({
+    name: String,
+    users: Object
 });
 </script>
 
