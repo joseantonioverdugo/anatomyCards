@@ -1,19 +1,17 @@
-<script setup lang="ts">
+<script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 
-const breadcrumbs: BreadcrumbItem[] = [
+const breadcrumbs = [
     {
         title: 'Subcategories',
         href: '/subcategories',
     },
 ];
 
-defineProps<{
-    name?: string;
-}>();
+defineProps({
+    subcategories: Object,
+});
 </script>
 
 <template>
@@ -21,20 +19,32 @@ defineProps<{
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <PlaceholderPattern />
-                </div>
-                <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <PlaceholderPattern />
-                </div>
-                <div class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                    <PlaceholderPattern />
-                </div>
-            </div>
-            <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
-                <PlaceholderPattern />
-            </div>
+            <table class="whitespace-no-wrap w-full">
+                <thead>
+                    <tr class="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-700">
+                        <th class="px-4 py-3">Name</th>
+                        <th class="px-4 py-3">Detalle</th>
+                        <th class="px-4 py-3">Editar</th>
+                        <th class="px-4 py-3">Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y bg-white">
+                    <tr v-for="subcategorie in subcategories.data" :key="subcategorie.id" class="text-gray-700">
+                        <td class="px-4 py-3 text-sm">
+                            {{ subcategorie.name }}
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            Detalle
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            Editar
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            Eliminar
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </AppLayout>
 </template>
