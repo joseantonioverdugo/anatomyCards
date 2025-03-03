@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateSubcategoryRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Subcategory;
@@ -37,9 +38,12 @@ class SubcategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateSubcategoryRequest $request, string $id)
     {
-        //
+        $subcategory = Subcategory::findOrFail($id);
+        $subcategory->update($request->validated());
+
+        return redirect()->route('subcategories.index')->with('success', 'Subcategory updated successfully.');
     }
 
     /**
@@ -47,6 +51,9 @@ class SubcategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $subcategory = Subcategory::findOrFail($id);
+        $subcategory->delete(); 
+
+        return redirect()->route('subcategories.index')->with('success', 'Subcategory deleted successfully.');
     }
 }
