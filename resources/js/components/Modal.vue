@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const props = defineProps({

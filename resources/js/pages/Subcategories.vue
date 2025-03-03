@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
