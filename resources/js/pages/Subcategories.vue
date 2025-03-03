@@ -4,7 +4,7 @@ import { Head } from '@inertiajs/vue3';
 
 const breadcrumbs = [
     {
-        title: 'Subcategories',
+        title: 'Subcategorías',
         href: '/subcategories',
     },
 ];

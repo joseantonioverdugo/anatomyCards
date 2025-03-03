@@ -7,7 +7,7 @@ import { ref } from 'vue';
 
 const breadcrumbs = [
     {
-        title: 'Users',
+        title: 'Usuarios',
         href: '/users',
     },
 ];
