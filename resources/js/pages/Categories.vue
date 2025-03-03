@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { Trash2 } from 'lucide-vue-next';
