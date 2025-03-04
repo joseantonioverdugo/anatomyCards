@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import Modal from '@/components/Modal.vue';
-import { Trash2 } from 'lucide-vue-next';
+import { Trash2, Plus } from 'lucide-vue-next';
 
 const breadcrumbs = [
     {
@@ -19,6 +19,11 @@ defineProps({
 const subcategory = ref(null);
 const subcategoryToEdit = ref(null);
 const showDeleteSubcategoryModal = ref(false);
+const showCreateSubcategoryModal = ref(false);
+
+const subcategoryForm = useForm({
+    name: '',
+});
 
 const editSubcategory = (selectedSubcategory) => {
     subcategoryToEdit.value = {...selectedSubcategory};
@@ -45,6 +50,17 @@ const saveSubcategory = () => {
     })
 }
 
+const createSubcategory = () => {
+    useForm({
+        name: subcategoryForm.name,
+    }).post(route('subcategories.store'), {
+        onSuccess: () => {
+            showCreateSubcategoryModal.value = false;
+            subcategoryForm.name = '';
+        }
+    })
+}
+
 const deleteSubcategory = (id) => {
     useForm().delete(route('subcategories.destroy', id), {
         onSuccess: () => {
@@ -60,6 +76,11 @@ const deleteSubcategory = (id) => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <div>
+                <button @click="showCreateSubcategoryModal = true" class="bg-gray-500 text-white p-2 rounded-sm">
+                    <Plus class="w-4 h-4"/>
+                </button>
+            </div>
             <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
                 <table class="whitespace-no-wrap w-full">
                     <thead>
@@ -105,6 +126,18 @@ const deleteSubcategory = (id) => {
                     <button @click="showDeleteSubcategoryModal = false" class="bg-gray-600 dark:bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
                     <button @click="deleteSubcategory(subcategory.id); showDeleteSubcategoryModal = false" class="bg-red-600 text-white p-2 rounded-sm">Eliminar</button>
                 </div>
+            </div>
+        </Modal>
+        <Modal :show="showCreateSubcategoryModal" @close="showCreateSubcategoryModal = false">
+            <div v-if="showCreateSubcategoryModal" class="p-6">
+                <form @submit.prevent="createSubcategory">
+                    <label for="name" class="block text-md font-medium text-gray-700 dark:text-gray-200">Nombre de la Subcategoría</label>
+                    <input v-model="subcategoryForm.name" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" type="text" placeholder="Subcategoría" required/>
+                    <div class="flex justify-end gap-4 mt-4">
+                        <button @click="showCreateSubcategoryModal = false; subcategoryForm.name = ''" class="bg-gray-600 dark:bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
+                        <button type="submit" class="bg-green-600 text-white p-2 rounded-sm">Guardar</button>
+                    </div>
+                </form>
             </div>
         </Modal>
     </AppLayout>

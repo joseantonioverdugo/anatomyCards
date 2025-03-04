@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateSubcategoryRequest;
 use App\Http\Requests\UpdateSubcategoryRequest;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,9 +23,11 @@ class SubcategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CreateSubcategoryRequest $request)
     {
-        //
+        $subcategory = Subcategory::create($request->validated());
+
+        return redirect()->route('subcategories.index')->with('success', 'Subcategory created successfully.');
     }
 
     /**
