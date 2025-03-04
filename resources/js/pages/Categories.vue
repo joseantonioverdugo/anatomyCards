@@ -60,37 +60,39 @@ const deleteCategory = (id) => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <table class="whitespace-no-wrap w-full">
-                <thead>
-                    <tr class="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-700">
-                        <th class="px-4 py-3">Name</th>
-                        <th class="px-4 py-3">Editar</th>
-                        <th class="px-4 py-3">Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y bg-white">
-                    <tr v-for="category in categories.data" :key="category.id" class="text-gray-700">
-                        <td v-if="categoryToEdit && category.id === categoryToEdit.id">
-                            <input v-model="categoryToEdit.name" class="w-full p-2 border border-gray-300 rounded-sm" type="text"/>
-                        </td>
-                        <td v-else class="px-4 py-3 text-sm">
-                            {{ category.name }}
-                        </td>
-                        <td v-if="categoryToEdit && category.id === categoryToEdit.id" class="px-4 py-3 text-sm">
-                            <button @click="saveCategorie" class="bg-green-600 text-white p-2 rounded-sm mr-2">Guardar</button>
-                            <button @click="cancelEdit" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
-                        </td>
-                        <td v-else class="px-4 py-3 text-sm">
-                            <span @click="editCategory(category)" class="text-green-600 hover:underline cursor-pointer">Editar</span>
-                        </td>
-                        <td class="px-4 py-3 text-sm">
-                            <button @click="deleteModal(category)" class="bg-red-600 text-white p-2 rounded-sm">
-                                <Trash2 class="w-4 h-4"/>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                <table class="whitespace-no-wrap w-full">
+                    <thead>
+                        <tr class="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200 dark:bg-gray-700">
+                            <th class="px-4 py-3">Name</th>
+                            <th class="text-center px-4 py-3">Editar</th>
+                            <th class="text-center px-4 py-3">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y bg-white">
+                        <tr v-for="category in categories.data" :key="category.id" class="text-gray-700 dark:text-gray-200 dark:bg-gray-800">
+                            <td v-if="categoryToEdit && category.id === categoryToEdit.id" class="px-4 py-3 text-sm text-center">
+                                <input v-model="categoryToEdit.name" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" type="text"/>
+                            </td>
+                            <td v-else class="px-4 py-3 text-sm">
+                                {{ category.name }}
+                            </td>
+                            <td v-if="categoryToEdit && category.id === categoryToEdit.id" class="px-4 py-3 text-sm text-center">
+                                <button @click="saveCategorie" class="bg-green-600 text-white p-2 rounded-sm mr-2">Guardar</button>
+                                <button @click="cancelEdit" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
+                            </td>
+                            <td v-else class="px-4 py-3 text-sm text-center">
+                                <span @click="editCategory(category)" class="text-green-600 hover:underline cursor-pointer">Editar</span>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-center">
+                                <button @click="deleteModal(category)" class="bg-red-600 text-white p-2 rounded-sm">
+                                    <Trash2 class="w-4 h-4"/>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <Modal :show="showDeleteCategoryModal" @close="showDeleteCategoryModal = false">
             <div v-if="category" class="p-6">

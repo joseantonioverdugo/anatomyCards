@@ -60,41 +60,43 @@ const deleteSubcategory = (id) => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-            <table class="whitespace-no-wrap w-full">
-                <thead>
-                    <tr class="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-700">
-                        <th class="px-4 py-3">Name</th>
-                        <th class="px-4 py-3">Editar</th>
-                        <th class="px-4 py-3">Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y bg-white">
-                    <tr v-for="subcategory in subcategories.data" :key="subcategory.id" class="text-gray-700">
-                        <td class="px-4 py-3 text-sm">
-                            <template v-if="subcategoryToEdit && subcategoryToEdit.id === subcategory.id">
-                                <input v-model="subcategoryToEdit.name" class="w-full p-2 border border-gray-300 rounded-sm" />
-                            </template>
-                            <template v-else>
-                                {{ subcategory.name }}
-                            </template>
-                        </td>
-                        <td class="px-4 py-3 text-sm">
-                            <template v-if="subcategoryToEdit && subcategoryToEdit.id === subcategory.id">
-                                <button @click="saveSubcategory" class="bg-green-600 text-white p-2 rounded-sm mr-2">Guardar</button>
-                                <button @click="cancelEdit" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
-                            </template>
-                            <template v-else>
-                                <span @click="editSubcategory(subcategory)" class="text-green-600 hover:underline cursor-pointer">Editar</span>
-                            </template>
-                        </td>
-                        <td class="px-4 py-3 text-sm">
-                            <button @click="deleteModal(subcategory)" class="bg-red-600 text-white p-2 rounded-sm">
-                                <Trash2 />
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                <table class="whitespace-no-wrap w-full">
+                    <thead>
+                        <tr class="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200 dark:bg-gray-700">
+                            <th class="px-4 py-3">Name</th>
+                            <th class="text-center px-4 py-3">Editar</th>
+                            <th class="text-center px-4 py-3">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y bg-white">
+                        <tr v-for="subcategory in subcategories.data" :key="subcategory.id" class="text-gray-700 dark:text-gray-200 dark:bg-gray-800">
+                            <td class="px-4 py-3 text-sm">
+                                <template v-if="subcategoryToEdit && subcategoryToEdit.id === subcategory.id">
+                                    <input v-model="subcategoryToEdit.name" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" />
+                                </template>
+                                <template v-else>
+                                    {{ subcategory.name }}
+                                </template>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-center">
+                                <template v-if="subcategoryToEdit && subcategoryToEdit.id === subcategory.id">
+                                    <button @click="saveSubcategory" class="bg-green-600 text-white p-2 rounded-sm mr-2">Guardar</button>
+                                    <button @click="cancelEdit" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
+                                </template>
+                                <template v-else>
+                                    <span @click="editSubcategory(subcategory)" class="text-green-600 hover:underline cursor-pointer">Editar</span>
+                                </template>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-center">
+                                <button @click="deleteModal(subcategory)" class="bg-red-600 text-white p-2 rounded-sm">
+                                    <Trash2 />
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <Modal :show="showDeleteSubcategoryModal" @close="showDeleteSubcategoryModal = false">
             <div v-if="subcategory" class="p-6">
