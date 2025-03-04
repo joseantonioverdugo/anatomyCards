@@ -126,9 +126,9 @@ const cancelEdit = () => {
         </div>
         <Modal :show="showDeleteUserModal" @close="showDeleteUserModal = false" >
             <div v-if="user" class="p-6">
-                <span>¿Estas seguro que deseas eliminar al usuario <b>{{user.name}}</b>?</span>
+                <span class="dark:text-gray-200">¿Estas seguro que deseas eliminar al usuario <b>{{user.name}}</b>?</span>
                 <div class="flex justify-end gap-4 mt-4">
-                    <button @click="showDeleteUserModal = false" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
+                    <button @click="showDeleteUserModal = false" class="bg-gray-600 dark:bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
                     <button @click="deleteUser(user.id)" class="bg-red-600 text-white p-2 rounded-sm">Eliminar</button>
                 </div>
             </div>

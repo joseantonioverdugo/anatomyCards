@@ -96,9 +96,9 @@ const deleteCategory = (id) => {
         </div>
         <Modal :show="showDeleteCategoryModal" @close="showDeleteCategoryModal = false">
             <div v-if="category" class="p-6">
-                <span>¿Estas seguro que deseas eliminar la categoría <b>{{category.name}}</b>?</span>
+                <span class="dark:text-gray-200">¿Estas seguro que deseas eliminar la categoría <b>{{category.name}}</b>?</span>
                 <div class="flex justify-end gap-4 mt-4">
-                    <button @click="showDeleteCategoryModal = false" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
+                    <button @click="showDeleteCategoryModal = false" class="bg-gray-600 dark:bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
                     <button @click="deleteCategory(category.id)" class="bg-red-600 text-white p-2 rounded-sm">Eliminar</button>
                 </div>
             </div>

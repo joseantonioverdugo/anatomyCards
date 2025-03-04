@@ -100,9 +100,9 @@ const deleteSubcategory = (id) => {
         </div>
         <Modal :show="showDeleteSubcategoryModal" @close="showDeleteSubcategoryModal = false">
             <div v-if="subcategory" class="p-6">
-                <span>¿Estas seguro que deseas eliminar la subcategoría <b>{{subcategory.name}}</b>?</span>
+                <span class="dark:text-gray-200">¿Estas seguro que deseas eliminar la subcategoría <b>{{subcategory.name}}</b>?</span>
                 <div class="flex justify-end gap-4 mt-4">
-                    <button @click="showDeleteSubcategoryModal = false" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
+                    <button @click="showDeleteSubcategoryModal = false" class="bg-gray-600 dark:bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
                     <button @click="deleteSubcategory(subcategory.id); showDeleteSubcategoryModal = false" class="bg-red-600 text-white p-2 rounded-sm">Eliminar</button>
                 </div>
             </div>
