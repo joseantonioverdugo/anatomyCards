@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\FlashcardController;
 use App\Http\Controllers\SubcategoryController;
 
 Route::get('/', function () {
@@ -18,16 +19,9 @@ Route::get('flashcards', function () {
     return Inertia::render('FlashCards');
 })->middleware(['auth', 'verified'])->name('flashcards');
 
-Route::get('categories', function () {
-    return Inertia::render('Categories');
-})->middleware(['auth', 'verified'])->name('categories');
-
-Route::get('subcategories', function () {
-    return Inertia::render('Subcategories');
-})->middleware(['auth', 'verified'])->name('subcategories');
-
 Route::middleware(['auth', 'verified'])->group(function(){
     Route::resource('users', UserController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+    Route::resource('flashcards', FlashcardController::class);
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
     Route::resource('subcategories', SubcategoryController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 });
