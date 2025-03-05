@@ -25,4 +25,11 @@ class UpdateSubcategoryRequest extends FormRequest
             'name' => 'required|string|max:255',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'El nombre es obligatorio.',
+        ];
+    }
 }

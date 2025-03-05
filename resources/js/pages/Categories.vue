@@ -69,6 +69,11 @@ const deleteCategory = (id) => {
         }
     });
 }
+
+const closeCreateModal = () => {
+    showCreateCategoryModal.value = false;
+    categoryForm.reset();
+}
 </script>
 
 <template>
@@ -132,7 +137,7 @@ const deleteCategory = (id) => {
                         <input v-model="categoryForm.name" type="text" id="name" name="name" class="mt-1 p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700 w-full" placeholder="Categoría" required>
                     </div>
                     <div class="flex justify-end gap-4 mt-4">
-                        <button @click="showCreateCategoryModal = false; categoryForm.name = ''" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
+                        <button @click="closeCreateModal" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
                         <button type="submit" class="bg-green-600 text-white p-2 rounded-sm">Guardar</button>
                     </div>
                 </form>

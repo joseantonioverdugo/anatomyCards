@@ -69,6 +69,11 @@ const deleteSubcategory = (id) => {
         }
     })
 }
+
+const closeCreateModal = () => {
+    showCreateSubcategoryModal.value = false;
+    subcategoryForm.reset();
+}
 </script>
 
 <template>
@@ -134,7 +139,7 @@ const deleteSubcategory = (id) => {
                     <label for="name" class="block text-md font-medium text-gray-700 dark:text-gray-200">Nombre de la Subcategoría</label>
                     <input v-model="subcategoryForm.name" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" type="text" placeholder="Subcategoría" required/>
                     <div class="flex justify-end gap-4 mt-4">
-                        <button @click="showCreateSubcategoryModal = false; subcategoryForm.name = ''" class="bg-gray-600 dark:bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
+                        <button @click="closeCreateModal" class="bg-gray-600 dark:bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
                         <button type="submit" class="bg-green-600 text-white p-2 rounded-sm">Guardar</button>
                     </div>
                 </form>
