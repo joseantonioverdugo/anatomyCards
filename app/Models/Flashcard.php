@@ -9,6 +9,8 @@ class Flashcard extends Model
 {
     protected $fillable = [
         'title',
+        'category_id',
+        'subcategory_id',
         'public_id',
         'url',
     ];
