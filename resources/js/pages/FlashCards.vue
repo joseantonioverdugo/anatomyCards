@@ -31,7 +31,6 @@ const flashcardForm = useForm({
 });
 
 const createFlashcard = () => {
-    console.log(flashcardForm);
     flashcardForm.post(route('flashcards.store'), {
         preserveScroll: true,
         onSuccess: () => {
@@ -54,9 +53,6 @@ const saveFlashcard = () => {
         subcategory_id: flashcardToEdit.value.subcategory_id,
         image: flashcardToEdit.value.image,
     });
-    
-    console.log('FORM',form);
-
     form.post(route('flashcards.update', flashcardToEdit.value.id), {
         _method: 'put',
         forceFormData: true,
@@ -82,7 +78,6 @@ const deleteModal = (selectedFlashcard) => {
 }
 
 const deleteFlashcard = (flashcardId) => {
-    console.log(flashcardId);
     flashcardForm.delete(route('flashcards.destroy', flashcardId), {
         preserveScroll: true,
         onSuccess: () => {

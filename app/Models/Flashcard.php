@@ -24,4 +24,9 @@ class Flashcard extends Model
     {
         return $this->belongsTo(Subcategory::class);
     }
+
+    public function options()
+    {
+        return $this->hasMany(Option::class);
+    }
 }
