@@ -72,46 +72,30 @@ class FlashcardController extends Controller
      * Update the specified resource in storage.
      */
     public function update(UpdateFlashcardRequest $request, string $id)
-    {
-        Log::info('Flashcard Update Request', [
-            'id' => $id,
-            'request' => $request->all(),
-            'files' => $request->hasFile('image') ? 'Tiene imagen' : 'No tiene imagen',
-            'method' => $request->method()
-        ]);
-        
+    {           
         $flashcard = Flashcard::findOrFail($id);
-        $validatedData = $request->validated();
-
-        // Si se proporciona una nueva imagen
+        $validatedData = array_filter($request->validated(), function($value) {
+            return $value !== null;
+        });
+        
         if ($request->hasFile('image')) {
             try {
-                // Eliminar imagen anterior de S3 si existe
                 if ($flashcard->public_id) {
                     Storage::disk('s3')->delete($flashcard->public_id);
                 }
                 
-                // Subir nueva imagen a S3
                 $file = $request->file('image');
                 $path = Storage::disk('s3')->put('flashcards', $file);
                 $url = Storage::disk('s3')->url($path);
                 
                 $validatedData['public_id'] = $path;
                 $validatedData['url'] = $url;
-                
-                // Registramos el evento para depuración
-                Log::info('Imagen actualizada para flashcard ID: ' . $id, [
-                    'path' => $path,
-                    'url' => $url
-                ]);
             } catch (Exception $e) {
                 Log::error('Error al actualizar imagen en S3: ' . $e->getMessage());
                 return redirect()->back()->withErrors(['image' => 'Error al subir la imagen: ' . $e->getMessage()]);
             }
         }
-
-        Log::info('Datos a actualizar:', $validatedData);
-        $flashcard->update($validatedData);
+        $flashcard->fill($validatedData)->save();
         return redirect()->route('flashcards.index')->with('success', 'Flashcard updated successfully.');
     }
 

@@ -53,12 +53,12 @@ const saveFlashcard = () => {
         category_id: flashcardToEdit.value.category_id,
         subcategory_id: flashcardToEdit.value.subcategory_id,
         image: flashcardToEdit.value.image,
-        _method: 'put',
     });
     
     console.log('FORM',form);
 
-    form.put(route('flashcards.update', flashcardToEdit.value.id), {
+    form.post(route('flashcards.update', flashcardToEdit.value.id), {
+        _method: 'put',
         forceFormData: true,
         preserveScroll: true,
         onSuccess: () => {
