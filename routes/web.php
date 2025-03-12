@@ -21,7 +21,7 @@ Route::get('flashcards', function () {
 
 Route::middleware(['auth', 'verified'])->group(function(){
     Route::resource('users', UserController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
-    Route::resource('flashcards', FlashcardController::class);
+    Route::resource('flashcards', FlashcardController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
     Route::resource('subcategories', SubcategoryController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 });

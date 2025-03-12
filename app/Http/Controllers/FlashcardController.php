@@ -10,10 +10,12 @@ use App\Models\Flashcard;
 use App\Models\Category;
 use App\Models\Subcategory;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Http\Resources\FlashcardResource;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\SubcategoryResource;
+use Exception;
 
 class FlashcardController extends Controller
 {
@@ -38,8 +40,20 @@ class FlashcardController extends Controller
     {
         $validatedData = $request->validated();
         
-        $validatedData['public_id'] = 'temp_' . Str::random(10);
-        $validatedData['url'] = 'https://via.placeholder.com/300x200?text=Temp+Image';
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+
+            try {
+                $path = Storage::disk('s3')->put('flashcards', $file);
+                $url = Storage::disk('s3')->url($path);
+            } catch (Exception $e) {
+                Log::error('Error al subir imagen a S3: ' . $e->getMessage());
+                return redirect()->back()->withErrors(['image' => 'Error al subir la imagen.']);
+            }
+
+            $validatedData['public_id'] = $path;
+            $validatedData['url'] = $url;
+        }
         
         $flashcard = Flashcard::create($validatedData);
         
@@ -54,16 +68,50 @@ class FlashcardController extends Controller
         //
     }
 
-
-
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateFlashcardRequest $request, string $id)
     {
-        $flashcard = FLashcard::findOrFail($id);
+        Log::info('Flashcard Update Request', [
+            'id' => $id,
+            'request' => $request->all(),
+            'files' => $request->hasFile('image') ? 'Tiene imagen' : 'No tiene imagen',
+            'method' => $request->method()
+        ]);
+        
+        $flashcard = Flashcard::findOrFail($id);
+        $validatedData = $request->validated();
 
-        $flashcard->update($request->validated());
+        // Si se proporciona una nueva imagen
+        if ($request->hasFile('image')) {
+            try {
+                // Eliminar imagen anterior de S3 si existe
+                if ($flashcard->public_id) {
+                    Storage::disk('s3')->delete($flashcard->public_id);
+                }
+                
+                // Subir nueva imagen a S3
+                $file = $request->file('image');
+                $path = Storage::disk('s3')->put('flashcards', $file);
+                $url = Storage::disk('s3')->url($path);
+                
+                $validatedData['public_id'] = $path;
+                $validatedData['url'] = $url;
+                
+                // Registramos el evento para depuración
+                Log::info('Imagen actualizada para flashcard ID: ' . $id, [
+                    'path' => $path,
+                    'url' => $url
+                ]);
+            } catch (Exception $e) {
+                Log::error('Error al actualizar imagen en S3: ' . $e->getMessage());
+                return redirect()->back()->withErrors(['image' => 'Error al subir la imagen: ' . $e->getMessage()]);
+            }
+        }
+
+        Log::info('Datos a actualizar:', $validatedData);
+        $flashcard->update($validatedData);
         return redirect()->route('flashcards.index')->with('success', 'Flashcard updated successfully.');
     }
 
@@ -73,6 +121,10 @@ class FlashcardController extends Controller
     public function destroy(string $id)
     {
         $flashcard = Flashcard::findOrFail($id);
+        
+        // Eliminar imagen de S3
+            Storage::disk('s3')->delete($flashcard->public_id);
+        
         $flashcard->delete();
         return redirect()->route('flashcards.index')->with('success', 'Flashcard deleted successfully.');
     }

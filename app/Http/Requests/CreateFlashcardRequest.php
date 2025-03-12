@@ -25,7 +25,7 @@ class CreateFlashcardRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'category_id' => ['required', 'exists:categories,id'],
             'subcategory_id' => ['required', 'exists:subcategories,id'],
-            // 'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
         ];
     }
 
@@ -38,9 +38,9 @@ class CreateFlashcardRequest extends FormRequest
             'subcategory_id.required' => 'La subcategoría es obligatoria.',
             'subcategory_id.exists' => 'La subcategoría seleccionada no es válida.',
             'image.required' => 'La imagen es obligatoria.',
-            // 'image.image' => 'El archivo debe ser una imagen.',
-            // 'image.mimes' => 'La imagen debe ser de tipo: jpeg, png, jpg, webp.',
-            // 'image.max' => 'La imagen no debe pesar más de 2MB.',
+            'image.image' => 'El archivo debe ser una imagen.',
+            'image.mimes' => 'La imagen debe ser de tipo: jpeg, png, jpg, webp.',
+            'image.max' => 'La imagen no debe pesar más de 2MB.',
         ];
     }
 }
