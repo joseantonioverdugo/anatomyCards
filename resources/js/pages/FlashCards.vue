@@ -1,9 +1,9 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import Modal from '@/components/Modal.vue';
 import { Trash2, Plus } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 
 const breadcrumbs = [
     {
@@ -20,8 +20,10 @@ defineProps({
 
 const flashcard = ref(null);
 const flashcardToEdit = ref(null);
+const newOption = ref(null);
 const showCreateFlashcardModal = ref(false);
 const showDeleteFlashcardModal = ref(false);
+const showOptionsModal = ref(false);
 
 const flashcardForm = useForm({
     title: '',
@@ -29,6 +31,14 @@ const flashcardForm = useForm({
     subcategory_id: null,
     image: null,
 });
+
+const optionForm = useForm({
+    title: '',
+    option_number: null,
+    flashcard_id: null,
+});
+
+const $page = usePage();
 
 const createFlashcard = () => {
     flashcardForm.post(route('flashcards.store'), {
@@ -42,6 +52,59 @@ const createFlashcard = () => {
 
 const editFlashcard = (selectedFlashcard) => {
     flashcardToEdit.value = {...selectedFlashcard};
+}
+
+const manageOptions = (selectedFlashcard) => {
+    showOptionsModal.value = true;
+    flashcard.value = selectedFlashcard;
+}
+
+const addOption = () => {
+    newOption.value = true;
+}
+
+const createOption = () => {
+    optionForm.flashcard_id = flashcard.value.id;
+    optionForm.post(route('options.store', flashcard.value.id), {
+        preserveScroll: true,
+        onSuccess: (page) => {
+            let updatedFlashcard = null;
+            
+            if (page.props && page.props.flash) {
+                updatedFlashcard = page.props.flash.flashcard || page.props.flash.updatedFlashcard;
+            }
+            
+            if (!updatedFlashcard && page.props) {
+                updatedFlashcard = page.props.flashcard;
+            }
+            
+            if (updatedFlashcard) {
+                flashcard.value = JSON.parse(JSON.stringify(updatedFlashcard));
+            } else {
+                const newOptionData = {
+                    flashcard_id: flashcard.value.id,
+                    option_number: optionForm.option_number,
+                    title: optionForm.title,
+                    id: Date.now()
+                };
+                
+                if (!flashcard.value.options) {
+                    flashcard.value.options = [];
+                }
+                
+                flashcard.value = {
+                    ...flashcard.value,
+                    options: [...flashcard.value.options, newOptionData]
+                };
+            }
+            
+            newOption.value = null;
+            optionForm.reset();
+        },
+        onError: (errors) => {
+            console.error('Errores al crear la opción:', errors);
+        }
+    });
 }
 
 const saveFlashcard = () => {
@@ -85,6 +148,35 @@ const deleteFlashcard = (flashcardId) => {
         },
     });
 }
+
+const deleteOption = (optionNumber) => {
+    if (confirm('¿Estás seguro de que quieres eliminar esta opción?')) {
+        const form = useForm({});
+        form.delete(route('options.destroy', { flashcard: flashcard.value.id, optionNumber: optionNumber }), {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                let updatedFlashcard = null;
+                
+                if (page.props && page.props.flash) {
+                    updatedFlashcard = page.props.flash.flashcard || page.props.flash.updatedFlashcard;
+                }
+                
+                if (!updatedFlashcard && page.props) {
+                    updatedFlashcard = page.props.flashcard;
+                }
+                
+                if (updatedFlashcard) {
+                    flashcard.value = JSON.parse(JSON.stringify(updatedFlashcard));
+                } else {
+                    flashcard.value = {
+                        ...flashcard.value,
+                        options: flashcard.value.options.filter(opt => opt.option_number !== optionNumber)
+                    };
+                }
+            }
+        });
+    }
+}
 </script>
 
 <template>
@@ -114,18 +206,17 @@ const deleteFlashcard = (flashcardId) => {
                     <tbody class="divide-y bg-white">
                         <template v-if="flashcards && flashcards.data.length">
                             <tr v-for="flashcard in flashcards.data" :key="flashcard.id" class="text-gray-700 dark:text-gray-200 dark:bg-gray-800">
-                                <!-- Título -->
+
                                 <td v-if="flashcardToEdit && flashcardToEdit.id === flashcard.id" class="px-4 py-3 text-sm text-center">
                                     <input v-model="flashcardToEdit.title" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.title}" type="text"/>
-                                <div v-if="$page.props.errors?.title" class="text-red-500 text-sm mt-1">
-                                    {{ $page.props.errors.title }}
-                                </div>
+                                    <div v-if="$page.props.errors?.title" class="text-red-500 text-sm mt-1">
+                                        {{ $page.props.errors.title }}
+                                    </div>
                                 </td>
                                 <td v-else class="px-4 py-3 text-sm text-center">
                                     {{ flashcard.title }}
                                 </td>
                                 
-                                <!-- Categoría -->
                                 <td v-if="flashcardToEdit && flashcardToEdit.id === flashcard.id" class="px-4 py-3 text-sm text-center">
                                     <select v-model="flashcardToEdit.category_id" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.category_id}">
                                         <option value="null" disabled>Selecciona una categoría</option>
@@ -139,7 +230,6 @@ const deleteFlashcard = (flashcardId) => {
                                     {{ flashcard.category.name}}
                                 </td>
                                 
-                                <!-- Subcategoría -->
                                 <td v-if="flashcardToEdit && flashcardToEdit.id === flashcard.id" class="px-4 py-3 text-sm text-center">
                                     <select v-model="flashcardToEdit.subcategory_id" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.subcategory_id}">
                                         <option value="null" disabled>Selecciona una subcategoría</option>
@@ -153,7 +243,6 @@ const deleteFlashcard = (flashcardId) => {
                                     {{ flashcard.subcategory.name }}
                                 </td>
                                 
-                                <!-- Imagen -->
                                 <td v-if="flashcardToEdit && flashcardToEdit.id === flashcard.id" class="px-4 py-3 text-sm text-center">
                                     <input type="file" @input="flashcardToEdit.image = $event.target.files[0]" accept=".jpg, .jpeg, .png, .webp" class="w-full p-2
                                     border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.image}">
@@ -171,28 +260,24 @@ const deleteFlashcard = (flashcardId) => {
                                     </div>
                                 </td>
                                 
-                                <!-- Ver -->
                                 <td class="px-4 py-3 text-sm text-center">
                                     Ver
                                 </td>
                                 
-                                <!-- Editar -->
                                 <td class="px-4 py-3 text-sm text-center">
-                                <template v-if="flashcardToEdit && flashcardToEdit.id === flashcard.id">
-                                    <button @click="saveFlashcard" class="bg-green-600 text-white p-2 rounded-sm mr-2">Guardar</button>
-                                    <button @click="cancelEditFlashcard" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
-                                </template>
-                                <template v-else>
-                                    <span @click="editFlashcard(flashcard)" class="text-green-600 hover:underline cursor-pointer">Editar</span>
-                                </template>
-                            </td>
-                                
-                                <!-- Opciones -->
-                                <td class="px-4 py-3 text-sm text-center">
-                                    Opciones
+                                    <template v-if="flashcardToEdit && flashcardToEdit.id === flashcard.id">
+                                        <button @click="saveFlashcard" class="bg-green-600 text-white p-2 rounded-sm mr-2">Guardar</button>
+                                        <button @click="cancelEditFlashcard" class="bg-gray-600 text-white p-2 rounded-sm">Cancelar</button>
+                                    </template>
+                                    <template v-else>
+                                        <span @click="editFlashcard(flashcard)" class="text-green-600 hover:underline cursor-pointer">Editar</span>
+                                    </template>
                                 </td>
                                 
-                                <!-- Eliminar -->
+                                <td class="px-4 py-3 text-sm text-center">
+                                    <span @click="manageOptions(flashcard)" class="text-blue-600 hover:underline cursor-pointer">Gestionar Opciones</span>
+                                </td>
+                                
                                 <td class="px-4 py-3 text-sm text-center">
                                     <button @click="deleteModal(flashcard)" class="bg-red-600 text-white p-2 rounded-sm">
                                         <Trash2 class="w-4 h-4"/>
@@ -208,7 +293,6 @@ const deleteFlashcard = (flashcardId) => {
             </div>
         </div>
         
-        <!-- Modal para crear flashcard -->
         <Modal :show="showCreateFlashcardModal" @close="showCreateFlashcardModal = false">
             <div class="p-6">
                 <form @submit.prevent="createFlashcard">
@@ -250,7 +334,6 @@ const deleteFlashcard = (flashcardId) => {
             </div>
         </Modal>
         
-        <!-- Modal para eliminar flashcard -->
         <Modal :show="showDeleteFlashcardModal" @close="showDeleteFlashcardModal = false">
             <div v-if="flashcard" class="p-6">
                 <span class="dark:text-gray-200">¿Estas seguro que deseas eliminar la tarjeta <b>{{flashcard.title}}</b>?</span>
@@ -260,6 +343,49 @@ const deleteFlashcard = (flashcardId) => {
                         Eliminar
                     </button>
                 </div>
+            </div>
+        </Modal>
+
+        <Modal :show="showOptionsModal" @close="showOptionsModal = false">
+            <div v-if="flashcard" class="p-6">
+                <span class="dark:text-gray-200 text-xl">Opciones de la flashcard {{ flashcard.title }}</span>
+                <div class="flex items-center justify-between mt-4">
+                    <button @click="addOption" class="bg-gray-500 text-white p-2 rounded-sm">Agregar Opción</button>
+                </div>
+                <table class="whitespace-no-wrap w-full mt-4">
+                    <thead>
+                        <tr class="border-b bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200 dark:bg-gray-700">
+                            <th class="px-4 py-3 text-center">Nº Opción</th>
+                            <th class="px-4 py-3 text-center">Título</th>
+                            <th class="px-4 py-3 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y bg-white">
+                        <tr v-if="newOption" class="text-gray-700 dark:text-gray-200 dark:bg-gray-800">
+                            <td class="px-4 py-3 text-center">
+                                <input v-model="optionForm.option_number" type="number" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.option_number}" placeholder="Número de opción" required>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <input v-model="optionForm.title" type="text" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.title}" placeholder="Título" required>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <button @click="createOption" class="bg-green-600 text-white p-2 rounded-sm"><Plus class="w-4 h-4"/></button>
+                            </td>
+                        </tr>
+                        <template v-if="flashcard.options && flashcard.options.length > 0">
+                            <tr v-for="option in flashcard.options" :key="option.option_number" class="text-gray-700 dark:text-gray-200 dark:bg-gray-800">
+                                <td class="px-4 py-3 text-center">{{ option.option_number }}</td>
+                                <td class="px-4 py-3 text-center">{{ option.title }}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <button @click="deleteOption(option.option_number)" class="bg-red-600 text-white p-1 rounded-sm"><Trash2 class="w-4 h-4"/></button>
+                                </td>
+                            </tr>
+                        </template>
+                        <tr v-if="!newOption && (!flashcard.options || flashcard.options.length === 0)" class="text-gray-700 dark:text-gray-200 dark:bg-gray-800">
+                            <td colspan="3" class="px-4 py-3 text-center">No hay opciones disponibles</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </Modal>
     </AppLayout>

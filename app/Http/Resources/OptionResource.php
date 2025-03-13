@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class FlashcardResource extends JsonResource
+class OptionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +16,9 @@ class FlashcardResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'flashcard_id' => $this->flashcard_id,
             'title' => $this->title,
-            'category' => new CategoryResource($this->whenLoaded('category')),
-            'subcategory' => new SubcategoryResource($this->whenLoaded('subcategory')),
-            'options' => OptionResource::collection($this->whenLoaded('options')),
-            'url' => $this->url,
+            'option_number' => $this->option_number,
         ];
     }
 }
