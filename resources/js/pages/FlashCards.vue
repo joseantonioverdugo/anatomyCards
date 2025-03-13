@@ -2,8 +2,8 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import Modal from '@/components/Modal.vue';
-import { Trash2, Plus } from 'lucide-vue-next';
-import { ref, nextTick } from 'vue';
+import { Trash2, Plus, Eye } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 const breadcrumbs = [
     {
@@ -23,6 +23,7 @@ const flashcardToEdit = ref(null);
 const newOption = ref(null);
 const showCreateFlashcardModal = ref(false);
 const showDeleteFlashcardModal = ref(false);
+const showFlashcardModal = ref(false);
 const showOptionsModal = ref(false);
 
 const flashcardForm = useForm({
@@ -177,6 +178,15 @@ const deleteOption = (optionNumber) => {
         });
     }
 }
+
+const showFlashcard = (selectedFlashcard) => {
+    flashcard.value = selectedFlashcard;
+    showFlashcardModal.value = true;
+}
+
+const openImageInNewTab = (url) => {
+    window.open(url, '_blank');
+}
 </script>
 
 <template>
@@ -253,7 +263,7 @@ const deleteOption = (optionNumber) => {
                                 </td>
                                 <td v-else class="px-4 py-3 text-sm text-center">
                                     <div v-if="flashcard.url">
-                                        <img :src="flashcard.url" alt="Imagen" class="w-16 h-16 object-cover rounded-sm">
+                                        <img @click="openImageInNewTab(flashcard.url)" :src="flashcard.url" alt="Imagen" class="w-16 h-16 object-cover rounded-sm cursor-pointer">
                                     </div>
                                     <div v-else>
                                         No hay imagen
@@ -261,7 +271,9 @@ const deleteOption = (optionNumber) => {
                                 </td>
                                 
                                 <td class="px-4 py-3 text-sm text-center">
-                                    Ver
+                                    <button @click="showFlashcard(flashcard)" class="bg-blue-600 text-white p-2 rounded-sm">
+                                        <Eye class="w-4 h-4"/>
+                                    </button>
                                 </td>
                                 
                                 <td class="px-4 py-3 text-sm text-center">
@@ -386,6 +398,39 @@ const deleteOption = (optionNumber) => {
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </Modal>
+        <Modal :show="showFlashcardModal" @close="showFlashcardModal = false" maxWidth="sm">
+            <div v-if="flashcard">
+                <div class="w-full flex-col items-center justify-center">
+                    <div>
+                        <div v-if="flashcard.url">
+                            <img @click="openImageInNewTab(flashcard.url)" :src="flashcard.url" alt="Imagen" class="w-full h-64 object-cover cursor-pointer">
+                        </div>
+                        <div v-else>
+                            No hay imagen
+                        </div>
+                    </div>
+                    <div class="mt-4 ml-6">
+                        <span class="dark:text-gray-200 text-2xl font-bold">{{ flashcard.title }}</span>
+                    </div>
+                    <div class="border-b my-2 mx-4"></div>
+                    <div class="mt-2 ml-6">
+                        <span class="dark:text-gray-400 font-bold">Categoría: </span>
+                        <span>{{ flashcard.category.name }}</span>
+                    </div>
+                    <div class="ml-6">
+                        <span class="dark:text-gray-400 font-bold">Subcategoría: </span>
+                        <span>{{ flashcard.subcategory.name }}</span>
+                    </div>
+                    <div class="ml-6">
+                        <span class="dark:text-gray-400 font-bold">Nº Opciones: </span>
+                        <span>{{ flashcard.options.length }}</span>
+                    </div>
+                    <div class="flex justify-end gap-4 mt-4 mr-6 mb-2">
+                        <button @click="showFlashcardModal = false" class="bg-gray-600 text-white p-2 rounded-sm mt-4">Cerrar</button>
+                    </div>
+                </div>
             </div>
         </Modal>
     </AppLayout>
