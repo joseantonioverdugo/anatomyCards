@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import Modal from '@/components/Modal.vue';
-import { Trash2, Plus, Eye, Pencil } from 'lucide-vue-next';
+import { Trash2, Plus, Eye, Pencil, Send } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const breadcrumbs = [
@@ -25,6 +25,7 @@ const showCreateFlashcardModal = ref(false);
 const showDeleteFlashcardModal = ref(false);
 const showFlashcardModal = ref(false);
 const showOptionsModal = ref(false);
+const editingOptionId = ref(null);
 
 const flashcardForm = useForm({
     title: '',
@@ -140,6 +141,7 @@ const closeOptionsModal = () => {
     showOptionsModal.value = false;
     optionForm.reset();
     newOption.value = null;
+    editingOptionId.value = null;
     $page.props.errors = null;
 }
 
@@ -193,6 +195,55 @@ const showFlashcard = (selectedFlashcard) => {
 
 const openImageInNewTab = (url) => {
     window.open(url, '_blank');
+}
+
+const editOption = (selectedOption) => {
+    newOption.value = null;
+    optionForm.title = selectedOption.title;
+    optionForm.option_number = selectedOption.option_number;
+    optionForm.flashcard_id = flashcard.value.id;
+    editingOptionId.value = selectedOption.id;
+}
+
+const saveOptionEdit = () => {
+    const form = useForm({
+        title: optionForm.title,
+        option_number: optionForm.option_number,
+        flashcard_id: optionForm.flashcard_id,
+    })
+
+    form.put(route('options.update', { option: editingOptionId.value }), {
+        preserveScroll: true,
+        onSuccess: (page) => {
+            let updatedFlashcard = null;
+            
+            if (page.props && page.props.flash) {
+                updatedFlashcard = page.props.flash.flashcard || page.props.flash.updatedFlashcard;
+            }
+            
+            if (!updatedFlashcard && page.props) {
+                updatedFlashcard = page.props.flashcard;
+            }
+            
+            // Si el servidor devolvió datos actualizados, actualizamos la UI
+            if (updatedFlashcard) {
+                flashcard.value = JSON.parse(JSON.stringify(updatedFlashcard));
+            } else {
+                // Actualización manual si no recibimos datos del servidor
+                const optionIndex = flashcard.value.options.findIndex(opt => opt.id === editingOptionId.value);
+                if (optionIndex !== -1) {
+                    flashcard.value.options[optionIndex].title = optionForm.title;
+                    flashcard.value.options[optionIndex].option_number = optionForm.option_number;
+                }
+            }
+            
+            editingOptionId.value = null;
+            optionForm.reset();
+        },
+        onError: (errors) => {
+            console.error('Errores al actualizar la opción:', errors);
+        }
+    });
 }
 </script>
 
@@ -399,9 +450,25 @@ const openImageInNewTab = (url) => {
                         </tr>
                         <template v-if="flashcard.options && flashcard.options.length > 0">
                             <tr v-for="option in flashcard.options" :key="option.option_number" class="text-gray-700 dark:text-gray-200 dark:bg-gray-800">
-                                <td class="px-4 py-3 text-center">{{ option.option_number }}</td>
-                                <td class="px-4 py-3 text-center">{{ option.title }}</td>
-                                <td class="px-4 py-3 text-center">
+                                <td v-if="editingOptionId && editingOptionId === option.id" class="px-4 py-3 text-center">
+                                    <input v-model="optionForm.option_number" type="number" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.option_number}" placeholder="Número de opción" required>
+                                    <div v-if="$page.props.errors?.option_number" class="text-red-500 text-sm mt-1">
+                                        {{ $page.props.errors.option_number }}
+                                    </div>
+                                </td>
+                                <td v-else class="px-4 py-3 text-center">{{ option.option_number }}</td>
+
+                                <td v-if="editingOptionId && editingOptionId === option.id" class="px-4 py-3 text-center">                                   
+                                    <input v-model="optionForm.title" type="text" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.title}" placeholder="Título" required>
+                                    <div v-if="$page.props.errors?.title" class="text-red-500 text-sm mt-1">
+                                        {{ $page.props.errors.title }}
+                                    </div>
+                                </td>
+                                <td v-else class="px-4 py-3 text-center">{{ option.title }}</td>
+                                <td v-if="editingOptionId && editingOptionId === option.id" class="px-4 py-3 text-center">
+                                    <button @click="saveOptionEdit" class="bg-green-600 text-white p-2 rounded-sm"><Send class="w-4 h-4"/></button>
+                                </td>
+                                <td v-else class="px-4 py-3 text-center">
                                     <button @click="editOption(option)" class="bg-yellow-500 text-white p-1 rounded-sm mr-2"><Pencil class="w-4 h-4"/></button>
                                     <button @click="deleteOption(option.option_number)" class="bg-red-600 text-white p-1 rounded-sm"><Trash2 class="w-4 h-4"/></button>
                                 </td>
@@ -413,8 +480,8 @@ const openImageInNewTab = (url) => {
                     </tbody>
                 </table>
                 <div class="flex justify-end gap-4 mt-4 mr-6 mb-2">
-                        <button @click="closeOptionsModal" class="bg-gray-600 text-white p-2 rounded-sm mt-4">Cerrar</button>
-                    </div>
+                    <button @click="closeOptionsModal" class="bg-gray-600 text-white p-2 rounded-sm mt-4">Cerrar</button>
+                </div>
             </div>
         </Modal>
         <Modal :show="showFlashcardModal" @close="showFlashcardModal = false" maxWidth="sm">
