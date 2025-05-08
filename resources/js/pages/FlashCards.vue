@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import Modal from '@/components/Modal.vue';
-import { Trash2, Plus, Eye, Pencil, Send } from 'lucide-vue-next';
+import { Trash2, Plus, Eye, Pencil, Send, Asterisk} from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const breadcrumbs = [
@@ -53,7 +53,11 @@ const createFlashcard = () => {
 }
 
 const editFlashcard = (selectedFlashcard) => {
-    flashcardToEdit.value = {...selectedFlashcard};
+    flashcardToEdit.value = {
+        ...selectedFlashcard,
+        category_id: selectedFlashcard.category.id,
+        subcategory_id: selectedFlashcard.subcategory.id,
+    };
 }
 
 const manageOptions = (selectedFlashcard) => {
@@ -287,7 +291,6 @@ const saveOptionEdit = () => {
                                 
                                 <td v-if="flashcardToEdit && flashcardToEdit.id === flashcard.id" class="px-4 py-3 text-sm text-center">
                                     <select v-model="flashcardToEdit.category_id" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.category_id}">
-                                        <option value="null" disabled>Selecciona una categoría</option>
                                         <option v-for="category in categories.data" :key="category.id" :value="category.id">{{ category.name }}</option>
                                     </select>
                                     <div v-if="$page.props.errors?.category_id" class="text-red-500 text-sm mt-1">
@@ -300,7 +303,6 @@ const saveOptionEdit = () => {
                                 
                                 <td v-if="flashcardToEdit && flashcardToEdit.id === flashcard.id" class="px-4 py-3 text-sm text-center">
                                     <select v-model="flashcardToEdit.subcategory_id" class="w-full p-2 border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.subcategory_id}">
-                                        <option value="null" disabled>Selecciona una subcategoría</option>
                                         <option v-for="subcategory in subcategories.data" :key="subcategory.id" :value="subcategory.id">{{ subcategory.name }}</option>
                                     </select>
                                     <div v-if="$page.props.errors?.subcategory_id" class="text-red-500 text-sm mt-1">
@@ -311,13 +313,12 @@ const saveOptionEdit = () => {
                                     {{ flashcard.subcategory.name }}
                                 </td>
                                 
-                                <td v-if="flashcardToEdit && flashcardToEdit.id === flashcard.id" class="px-4 py-3 text-sm text-center">
+                                <td v-if="flashcardToEdit && flashcardToEdit.id === flashcard.id" class="px-4 py-3 text-sm flex items-flex-start justify-center">
                                     <input type="file" @input="flashcardToEdit.image = $event.target.files[0]" accept=".jpg, .jpeg, .png, .webp" class="w-full p-2
                                     border border-gray-300 rounded-sm dark:text-gray-200 dark:bg-gray-700" :class="{'border-red-500': $page.props.errors?.image}">
                                     <div v-if="$page.props.errors?.image" class="text-red-500 text-sm mt-1">
                                         {{ $page.props.errors.image }}
                                     </div>
-                                    <small class="text-gray-500 dark:text-gray-400 block mt-1">Selecciona una imagen nueva o deja en blanco para mantener la actual</small>
                                 </td>
                                 <td v-else class="px-4 py-3 text-sm text-center">
                                     <div v-if="flashcard.url">
