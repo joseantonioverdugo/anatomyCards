@@ -7,10 +7,11 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FlashcardController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\SubcategoryController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+Route::get('/', [AuthenticatedSessionController::class, 'create'])
+    ->middleware('guest')
+    ->name('login');
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
