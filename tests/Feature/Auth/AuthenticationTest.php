@@ -19,7 +19,9 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'is_admin' => 1
+        ]);
 
         $response = $this->post('/login', [
             'email' => $user->email,
@@ -28,6 +30,21 @@ class AuthenticationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
+    public function test_users_can_authenticate_using_the_login_screen_and_redirect_to_game()
+    {
+        $user = User::factory()->create([
+            'is_admin' => 0
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('game', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password()
