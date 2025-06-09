@@ -8,9 +8,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
-
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -27,14 +27,31 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+     public function store(LoginRequest $request): RedirectResponse
+     {
+        try {
+            $request->authenticate();
+
+            $request->session()->regenerate();
+
+            return redirect()->intended($this->redirectTo());
+        } catch (ValidationException $e) {
+            throw $e;
+        }
+     }
+
+    /**
+     * Get the post authentication redirect path.
+     */
+    protected function redirectTo(): string
     {
-        $request->authenticate();
-
-        $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard', absolute: false));
+        if (Auth::user()->is_admin) {
+            return route('dashboard');
+        }
+        
+        return route('game');
     }
+
 
     /**
      * Destroy an authenticated session.
