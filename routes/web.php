@@ -8,6 +8,7 @@ use App\Http\Controllers\FlashcardController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\SubcategoryController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\GameController;
 
 Route::get('/', [AuthenticatedSessionController::class, 'create'])
     ->middleware('guest')
@@ -27,7 +28,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function(){
 
 
 Route::middleware(['auth', 'verified'])->group(function(){
-    Route::get('game',[UserController::class, 'game'])->name('game');
+    Route::get('game',[GameController::class, 'index'])->name('game');
 });
 
 require __DIR__.'/settings.php';
