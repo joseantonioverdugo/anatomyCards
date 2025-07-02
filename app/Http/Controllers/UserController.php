@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use Illuminate\Http\Request;
+use App\Http\Requests\UpdateBestScoreRequest;
 use Inertia\Inertia;
 use App\Models\User;
 
@@ -55,5 +55,18 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+    }
+
+    public function updateBestScore(UpdateBestScoreRequest $request, string $id)
+    {
+        $user = User::findOrFail($id);
+        $newScore = $request->validated()['best_score'];
+
+        if ($newScore > $user->best_score) {
+            $user->best_score = $newScore;
+            $user->save();
+        }
+        
+        return response()->json(['success' => true, 'best_score' => $user->best_score]);
     }
 }

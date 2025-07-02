@@ -29,6 +29,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function(){
 
 Route::middleware(['auth', 'verified'])->group(function(){
     Route::get('game',[GameController::class, 'index'])->name('game');
+    Route::patch('users/{id}/best-score', [UserController::class, 'updateBestScore'])->name('best-score');
 });
 
 require __DIR__.'/settings.php';
